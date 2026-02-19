@@ -1,0 +1,7 @@
+{
+  "name": "AppServicioFrontend",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
