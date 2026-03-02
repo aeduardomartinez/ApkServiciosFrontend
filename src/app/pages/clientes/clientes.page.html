@@ -1,0 +1,180 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-title>Clientes</ion-title>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+    <div class="clientes-page">
+
+        <!-- ── HEADER ─────────────────────────────────────── -->
+        <div class="page-header">
+            <div class="header-top">
+                <div class="header-text">
+                    <h1 class="page-title">Clientes</h1>
+                    <p class="page-subtitle">{{ clientes.length }} registrado{{ clientes.length !== 1 ? 's' : '' }}</p>
+                </div>
+            </div>
+
+            <!-- Buscador -->
+            <div class="search-wrapper">
+                <ion-icon name="search-outline" class="search-icon"></ion-icon>
+                <input class="search-input" type="text" placeholder="Buscar por nombre o teléfono..." [value]="busqueda"
+                    (input)="onSearch($event.target)" />
+            </div>
+        </div>
+
+        <!-- ── LOADING ─────────────────────────────────────── -->
+        <div *ngIf="loading" class="skeletons">
+            <div class="skeleton-card" *ngFor="let i of [1,2,3,4,5]"></div>
+        </div>
+
+        <!-- ── VACÍO ───────────────────────────────────────── -->
+        <div *ngIf="!loading && filtrados.length === 0" class="empty-state">
+            <div class="empty-icon">👥</div>
+            <p class="empty-title">
+                {{ busqueda ? 'Sin resultados' : 'No hay clientes aún' }}
+            </p>
+            <p class="empty-sub">
+                {{ busqueda ? 'Intenta con otro nombre o teléfono' : 'Crea el primer cliente con el botón Nuevo' }}
+            </p>
+        </div>
+
+        <!-- ── LISTA ───────────────────────────────────────── -->
+        <div *ngIf="!loading && filtrados.length > 0" class="clientes-list">
+            <div class="cliente-card" *ngFor="let c of filtrados; trackBy: trackById">
+
+                <!-- Avatar -->
+                <div class="avatar" [style.background]="avatarColor(c.id)">
+                    {{ iniciales(c) }}
+                </div>
+
+                <!-- Info -->
+                <div class="cliente-info">
+                    <span class="cliente-nombre">{{ c.nombreCompleto }}</span>
+                    <span class="cliente-tel">
+                        <ion-icon name="call-outline"></ion-icon>
+                        {{ c.telefono }}
+                    </span>
+                </div>
+
+                <!-- Acciones -->
+                <div class="cliente-actions">
+                    <button class="btn-action btn-edit" type="button" (click)="abrirEditar(c)">
+                        <ion-icon name="pencil-outline"></ion-icon>
+                    </button>
+                    <button class="btn-action btn-delete" type="button" (click)="confirmarEliminar(c)">
+                        <ion-icon name="trash-outline"></ion-icon>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════ -->
+    <!-- MODAL CREAR / EDITAR                                   -->
+    <!-- ══════════════════════════════════════════════════════ -->
+    <div *ngIf="modalAbierto" class="overlay" (click)="cerrarModal()">
+        <div class="modal-sheet" (click)="$event.stopPropagation()">
+
+            <div class="handle-bar"></div>
+
+            <!-- Header modal -->
+            <div class="modal-header">
+                <div class="modal-header-left">
+                    <span class="modal-icon">{{ vistaModal === 'editar' ? '✏️' : '👤' }}</span>
+                    <div>
+                        <h2 class="modal-title">
+                            {{ vistaModal === 'editar' ? 'Editar Cliente' : 'Nuevo Cliente' }}
+                        </h2>
+                        <p class="modal-subtitle" *ngIf="vistaModal === 'editar'">
+                            {{ clienteEditando?.nombreCompleto }}
+                        </p>
+                    </div>
+                </div>
+                <button class="close-btn" type="button" (click)="cerrarModal()">
+                    <ion-icon name="close-outline"></ion-icon>
+                </button>
+            </div>
+
+            <!-- Body modal -->
+            <div class="modal-body">
+
+                <div *ngIf="errorMsg" class="error-banner">
+                    <ion-icon name="alert-circle-outline"></ion-icon>
+                    {{ errorMsg }}
+                </div>
+
+                <!-- Nombre -->
+                <div class="field-group">
+                    <label class="field-label">Nombre</label>
+                    <input class="field-input" type="text" placeholder="Ej: Juan" [(ngModel)]="form.nombre"
+                        [disabled]="saving" />
+                </div>
+
+                <!-- Apellido -->
+                <div class="field-group">
+                    <label class="field-label">Apellido</label>
+                    <input class="field-input" type="text" placeholder="Ej: Pérez" [(ngModel)]="form.apellido"
+                        [disabled]="saving" />
+                </div>
+
+                <!-- Teléfono -->
+                <div class="field-group">
+                    <label class="field-label">
+                        <ion-icon name="call-outline"></ion-icon>
+                        Teléfono
+                    </label>
+                    <input class="field-input" type="tel" placeholder="Ej: 3001234567" [(ngModel)]="form.telefono"
+                        [disabled]="saving" />
+                </div>
+            </div>
+
+            <!-- Footer modal -->
+            <div class="modal-footer">
+                <button class="btn-cancel" type="button" (click)="cerrarModal()" [disabled]="saving">
+                    Cancelar
+                </button>
+                <button class="btn-save" type="button" (click)="guardar()" [disabled]="saving">
+                    <ion-icon name="checkmark-outline" *ngIf="!saving"></ion-icon>
+                    <ion-spinner name="crescent" *ngIf="saving" style="width:16px;height:16px;"></ion-spinner>
+                    {{ saving ? 'Guardando...' : (vistaModal === 'editar' ? 'Actualizar' : 'Crear') }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════ -->
+    <!-- CONFIRMACIÓN ELIMINAR                                  -->
+    <!-- ══════════════════════════════════════════════════════ -->
+    <div *ngIf="confirmAbierto" class="overlay" (click)="cancelarEliminar()">
+        <div class="confirm-sheet" (click)="$event.stopPropagation()">
+
+            <div class="confirm-icon">🗑️</div>
+
+            <h3 class="confirm-title">¿Eliminar cliente?</h3>
+            <p class="confirm-msg">
+                Se eliminará a <strong>{{ clienteAEliminar?.nombreCompleto }}</strong>.
+                Esta acción no se puede deshacer.
+            </p>
+
+            <div class="confirm-actions">
+                <button class="btn-cancel" type="button" (click)="cancelarEliminar()" [disabled]="eliminando">
+                    Cancelar
+                </button>
+                <button class="btn-delete-confirm" type="button" (click)="ejecutarEliminar()" [disabled]="eliminando">
+                    <ion-spinner name="crescent" *ngIf="eliminando" style="width:14px;height:14px;"></ion-spinner>
+                    {{ eliminando ? 'Eliminando...' : 'Sí, eliminar' }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="!modalAbierto">
+        <ion-fab-button (click)="abrirCrear()" color="primary">
+            <ion-icon name="add-outline"></ion-icon>
+        </ion-fab-button>
+    </ion-fab>
+
+</ion-content>

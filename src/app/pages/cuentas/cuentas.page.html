@@ -1,0 +1,89 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Cuentas</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <!-- ========== VISTA: LISTADO DE SERVICIOS ========== -->
+  <ng-container *ngIf="!selectedServicio">
+
+    <ion-searchbar class="app-search" placeholder="Buscar por cliente, correo o servicio..."
+      (ionInput)="onGlobalSearch($event)">
+    </ion-searchbar>
+
+    <ng-container *ngIf="!globalSearchQuery">
+      <p class="section-label">Selecciona un servicio para ver sus cuentas</p>
+
+      <!-- Loading skeleton -->
+      <div *ngIf="loadingServicios" class="services-grid">
+        <div class="service-card skeleton" *ngFor="let i of [1,2,3,4]"></div>
+      </div>
+
+      <!-- Sin servicios -->
+      <div *ngIf="!loadingServicios && servicios.length === 0" class="empty-services">
+        <ion-icon name="tv-outline"></ion-icon>
+        <p>No hay servicios registrados</p>
+      </div>
+
+      <!-- Grid de tarjetas de servicios -->
+      <div *ngIf="!loadingServicios && servicios.length > 0" class="services-grid">
+        <button *ngFor="let s of servicios; trackBy: trackByServicioId" class="service-card" type="button"
+          (click)="selectServicio(s)">
+
+          <div class="service-logo" [style.background]="getLogoConfig(s.nombreServicio).bg"
+            [style.color]="getLogoConfig(s.nombreServicio).color">
+            <span class="service-emoji">{{ getLogoConfig(s.nombreServicio).emoji }}</span>
+          </div>
+
+          <span class="service-name">{{ s.nombreServicio }}</span>
+
+          <ion-icon name="chevron-forward-outline" class="service-arrow"></ion-icon>
+        </button>
+      </div> <!-- /services-grid -->
+    </ng-container>
+
+    <!-- Resultados globales -->
+    <ng-container *ngIf="globalSearchQuery">
+      <p class="section-label">Resultados de búsqueda global</p>
+      <app-listar-cuentas [globalSearchTerm]="globalSearchQuery" [hideSearchbar]="true"></app-listar-cuentas>
+    </ng-container>
+
+  </ng-container>
+
+  <!-- ========== VISTA: CUENTAS DEL SERVICIO SELECCIONADO ========== -->
+  <ng-container *ngIf="selectedServicio">
+
+    <!-- Header de detalle -->
+    <div class="detail-header">
+      <button class="back-btn" type="button" (click)="volverAServicios()">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </button>
+
+      <div class="detail-logo" [style.background]="getLogoConfig(selectedServicio.nombreServicio).bg"
+        [style.color]="getLogoConfig(selectedServicio.nombreServicio).color">
+        <span>{{ getLogoConfig(selectedServicio.nombreServicio).emoji }}</span>
+      </div>
+
+      <div class="detail-info">
+        <h2 class="detail-service-name">{{ selectedServicio.nombreServicio }}</h2>
+        <span class="detail-subtitle">Cuentas registradas</span>
+      </div>
+    </div>
+
+    <!-- Lista de cuentas filtradas -->
+    <app-listar-cuentas [servicioId]="selectedServicio.id"></app-listar-cuentas>
+
+  </ng-container>
+  <!-- ✅ OVERLAY DEL FORMULARIO - dentro de ion-content -->
+  <div *ngIf="showCrearCuenta" class="crear-cuenta-overlay">
+    <app-crear-cuenta (closed)="showCrearCuenta = false"></app-crear-cuenta>
+  </div>
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="!showCrearCuenta">
+    <ion-fab-button (click)="toggleCrearCuenta()" color="primary">
+      <ion-icon name="add-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
+</ion-content>

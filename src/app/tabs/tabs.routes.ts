@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { TabsPage } from './tabs.page';
 
+import { ClientesPage } from '../pages/clientes/clientes.page';
 export const routes: Routes = [
   {
     path: 'tabs',
@@ -12,14 +13,15 @@ export const routes: Routes = [
           import('../tab1/tab1.page').then((m) => m.Tab1Page),
       },
       {
-        path: 'tab2',
-        loadComponent: () =>
-          import('../tab2/tab2.page').then((m) => m.Tab2Page),
-      },
+         path: 'tab2',
+         loadComponent: () =>
+             import('../pages/cuentas/cuentas.page').then((m) => m.CuentasPage),
+
+         },
       {
         path: 'tab3',
         loadComponent: () =>
-          import('../tab3/tab3.page').then((m) => m.Tab3Page),
+          import('../pages/clientes/clientes.page').then((m) => m.ClientesPage),
       },
       {
         path: '',

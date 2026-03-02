@@ -1,0 +1,59 @@
+<div class="cuentas-child">
+
+  <div class="section-title"
+    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+    <span style="font-size: 20px; font-weight: 700;">Crear Nueva Cuenta</span>
+    <ion-button fill="clear" color="medium" (click)="close()">
+      <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+    </ion-button>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <ion-item class="app-item">
+      <ion-label position="stacked">Servicio</ion-label>
+
+      <ion-select formControlName="servicioId" interface="popover" placeholder="Selecciona un servicio"
+        class="app-select">
+        <ion-select-option *ngFor="let s of servicios" [value]="s.id">
+          {{ s.nombreServicio }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <!-- Correo Principal -->
+    <ion-item class="app-item">
+      <ion-input formControlName="correo" label="Correo Principal" labelPlacement="stacked">
+      </ion-input>
+    </ion-item>
+
+    <!-- Clave -->
+    <ion-item class="app-item">
+      <ion-input [type]="showClave ? 'text' : 'password'" formControlName="clave" label="Clave de la Cuenta"
+        labelPlacement="stacked">
+      </ion-input>
+      <ion-icon slot="end" [name]="showClave ? 'eye-off-outline' : 'eye-outline'" (click)="toggleClave()"
+        style="cursor: pointer; align-self: flex-end; margin-bottom: 12px; margin-right: 8px; font-size: 20px; color: var(--ion-color-medium); z-index: 2;"></ion-icon>
+    </ion-item>
+
+    <!-- Fecha Inicio -->
+    <ion-item class="app-item">
+      <ion-input type="date" formControlName="fechaInicio" label="Fecha Inicio" labelPlacement="stacked">
+      </ion-input>
+    </ion-item>
+
+    <!-- Fecha Fin -->
+    <ion-item class="app-item">
+      <ion-input type="date" formControlName="fechaFin" label="Fecha Fin" labelPlacement="stacked">
+      </ion-input>
+    </ion-item>
+
+    <ion-button class="app-primary-btn ion-margin-top" expand="block" type="submit">
+      <ion-icon slot="start" name="checkmark-circle-outline"></ion-icon>
+      Guardar Cuenta
+    </ion-button>
+
+  </form>
+
+
+
+</div>

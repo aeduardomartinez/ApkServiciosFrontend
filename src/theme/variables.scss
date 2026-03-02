@@ -1,2 +1,150 @@
 // For information on how to create your own theme, please refer to:
 // https://ionicframework.com/docs/theming/
+
+:root {
+  /* Primary (azul claro) */
+  --ion-color-primary: #308ee0;
+  --ion-color-primary-rgb: 79, 159, 230;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #0c2a44;
+  --ion-color-primary-tint: #61a9e9;
+
+  /* Background / surfaces */
+  --ion-background-color: #f4f8ff;
+  --ion-background-color-rgb: 244, 248, 255;
+
+  --ion-text-color: #1c2a3a;
+  --ion-text-color-rgb: 28, 42, 58;
+
+  /* Card / item */
+  --app-surface: #ffffff;
+  --app-surface-2: #f7fbff;
+
+  /* Borders & radius */
+  --app-border: rgba(28, 42, 58, 0.10);
+  --app-radius-lg: 18px;
+  --app-radius-md: 14px;
+
+  /* Shadows */
+  --app-shadow-sm: 0 6px 18px rgba(23, 52, 100, 0.08);
+  --app-shadow-md: 0 12px 26px rgba(23, 52, 100, 0.10);
+
+  /* Inputs */
+  --app-input-bg: #ffffff;
+  --app-input-border: rgba(79, 159, 230, 0.25);
+  --app-input-border-focus: rgba(79, 159, 230, 0.55);
+}
+/* Fondo suave general */
+ion-content {
+  --background: var(--ion-background-color);
+}
+
+/* Toolbar estilo “limpio” */
+ion-toolbar {
+  --background: rgba(255, 255, 255, 0.85);
+  --color: var(--ion-text-color);
+  box-shadow: 0 4px 14px rgba(23, 52, 100, 0.08);
+  backdrop-filter: blur(12px);
+}
+
+/* Título centrado más “app” */
+ion-title {
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+/* Tab bar tipo “pill” */
+ion-tab-bar {
+  --background: rgba(255, 255, 255, 0.88);
+  --border: 1px solid var(--app-border);
+  border-radius: 18px;
+  margin: 10px 12px;
+  padding: 6px 4px;
+  box-shadow: var(--app-shadow-sm);
+}
+
+/* Ícono y label */
+ion-tab-button {
+  --color: rgba(28, 42, 58, 0.55);
+  --color-selected: var(--ion-color-primary);
+}
+
+.app-card {
+  background: var(--app-surface);
+  border: 1px solid rgba(var(--ion-color-primary-rgb), 0.15);
+  border-radius: var(--app-radius-lg);
+  box-shadow: var(--app-shadow-md);
+  padding: 14px;              /* 🔑 clave */
+  overflow: hidden;           /* 🔑 evita “invasión” visual */
+}
+/* Encabezado dentro de card (icono + título) */
+.app-card__title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--ion-text-color);
+  margin: 0;                  /* 🔑 quita el empuje raro */
+  padding-bottom: 12px;       /* 🔑 controla separación */
+  border-bottom: 1px solid var(--app-border);
+}
+
+.app-card__icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: rgba(var(--ion-color-primary-rgb), 0.12);
+  color: var(--ion-color-primary);
+}
+
+/* Inputs tipo “píldora” */
+.app-item {
+  --background: var(--app-input-bg);
+  --border-color: var(--app-input-border);
+  --border-radius: 16px;
+
+  border: 1px solid var(--app-input-border);
+  border-radius: 16px;
+  margin: 10px 0;
+  box-shadow: 0 4px 10px rgba(23, 52, 100, 0.04);
+}
+
+.app-item.ion-focused,
+.app-item.item-has-focus {
+  border-color: var(--app-input-border-focus);
+}
+
+/* Notas de error más limpias */
+.app-error {
+  display: block;
+  margin: -6px 2px 8px 6px;
+  font-size: 12px;
+}
+
+/* Botón principal estilo mockup */
+.app-primary-btn {
+  --border-radius: 18px;
+  height: 48px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  box-shadow: 0 12px 24px rgba(var(--ion-color-primary-rgb), 0.22);
+}
+
+/* Search bar superior */
+.app-search {
+  --background: rgba(255, 255, 255, 0.92);
+  --color: var(--ion-text-color);
+  --placeholder-color: rgba(28, 42, 58, 0.45);
+  --icon-color: rgba(28, 42, 58, 0.45);
+  border: 1px solid var(--app-border);
+  border-radius: 18px;
+  box-shadow: var(--app-shadow-sm);
+}
+ion-tab-button.ion-selected {
+  background: rgba(var(--ion-color-primary-rgb), 0.1);
+  border-radius: 16px;
+}

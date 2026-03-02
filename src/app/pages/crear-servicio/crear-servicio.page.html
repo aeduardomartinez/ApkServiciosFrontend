@@ -1,0 +1,52 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Mis Servicios</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <!-- Filtro arriba (por ahora solo UI) -->
+  <ion-searchbar class="app-search" placeholder="Buscar cliente o cuentas libres..."></ion-searchbar>
+
+  <div class="app-card ion-margin-top">
+    <div class="app-card__title">
+      <div class="app-card__icon">
+        <ion-icon name="settings-outline"></ion-icon>
+      </div>
+      <span>Crear Nuevo Servicio</span>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <!---    <ion-item class="app-item">
+        <ion-input formControlName="id" label="ID del Servicio" labelPlacement="stacked"></ion-input>
+      </ion-item>  -->
+
+      <ion-item class="app-item">
+        <ion-input formControlName="nombreServicio" label="Nombre del Servicio" labelPlacement="stacked"></ion-input>
+      </ion-item>
+
+      <ion-item class="app-item">
+        <ion-input type="number" formControlName="maxPerfilesBase" label="Perfiles Base Permitidos" labelPlacement="stacked"></ion-input>
+      </ion-item>
+
+      <ion-item class="app-item">
+        <ion-input type="number" formControlName="maxPerfilesExtra" label="Perfiles Extra Permitidos" labelPlacement="stacked"></ion-input>
+      </ion-item>
+
+      <ion-item class="app-item">
+        <ion-input type="number" formControlName="valorTotalCuenta" label="Valor Total de la Cuenta" labelPlacement="stacked"></ion-input>
+      </ion-item>
+
+      <ion-item class="app-item">
+        <ion-input type="number" formControlName="valorPerfil" label="Valor por Perfil" labelPlacement="stacked"></ion-input>
+      </ion-item>
+
+      <ion-button class="app-primary-btn ion-margin-top" expand="block" type="submit">
+        <ion-icon slot="start" name="checkmark-circle-outline"></ion-icon>
+        Guardar Servicio
+      </ion-button>
+    </form>
+  </div>
+
+</ion-content>

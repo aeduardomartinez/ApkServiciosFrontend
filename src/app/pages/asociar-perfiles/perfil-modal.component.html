@@ -1,0 +1,142 @@
+<div class="modal-overlay" (click)="cancelar()">
+    <div class="modal-sheet" (click)="$event.stopPropagation()">
+
+        <div class="handle-bar"></div>
+
+        <!-- Header -->
+        <div class="modal-header">
+            <div class="modal-header-left">
+                <span class="modal-icon">{{ isEdicion ? '✏️' : '👤' }}</span>
+                <div>
+                    <h2 class="modal-title">{{ isEdicion ? 'Editar Perfil' : 'Asignar Perfil' }}</h2>
+                    <p class="modal-subtitle">{{ data?.cuentaNombre }} · {{ data?.cuentaCorreo }}</p>
+                </div>
+            </div>
+            <button class="close-btn" type="button" (click)="cancelar()">
+                <ion-icon name="close-outline"></ion-icon>
+            </button>
+        </div>
+
+        <!-- Body -->
+        <div class="modal-body">
+
+            <!-- Error -->
+            <div *ngIf="errorMsg" class="error-banner">⚠️ {{ errorMsg }}</div>
+
+            <!-- Selector de Cliente -->
+            <div class="field-group">
+                <label class="field-label">
+                    <ion-icon name="person-outline"></ion-icon>
+                    Cliente
+                </label>
+
+                <!-- Loading -->
+                <div *ngIf="loadingClientes" class="field-input loading-placeholder">
+                    Cargando clientes...
+                </div>
+
+                <!-- Trigger del dropdown -->
+                <div *ngIf="!loadingClientes && !clienteSeleccionado"
+                     class="field-input dropdown-trigger"
+                     (click)="toggleDropdown()">
+                    <span class="placeholder-text">Buscar cliente...</span>
+                    <ion-icon name="chevron-down-outline"></ion-icon>
+                </div>
+
+                <!-- Cliente seleccionado -->
+                <div *ngIf="!loadingClientes && clienteSeleccionado" class="cliente-seleccionado">
+                    <div class="cliente-info">
+                        <span class="cliente-nombre">{{ clienteSeleccionado.nombreCompleto }}</span>
+                        <span class="cliente-tel">📞 {{ clienteSeleccionado.telefono }}</span>
+                    </div>
+                    <button class="btn-cambiar" type="button" (click)="limpiarCliente()">
+                        Cambiar
+                    </button>
+                </div>
+
+                <!-- Dropdown abierto -->
+                <div *ngIf="dropdownAbierto" class="dropdown-panel">
+
+                    <!-- Buscador interno -->
+                    <div class="dropdown-search">
+                        <input
+                            class="dropdown-search-input"
+                            type="text"
+                            placeholder="Buscar por nombre o teléfono..."
+                            [value]="busqueda"
+                            (input)="filtrarClientes($event)"
+                            (click)="$event.stopPropagation()" />
+                    </div>
+
+                    <!-- Sin resultados -->
+                    <div *ngIf="clientesFiltrados.length === 0" class="dropdown-empty">
+                        No se encontraron clientes
+                    </div>
+
+                    <!-- Lista de clientes -->
+                    <div class="dropdown-list">
+                        <button
+                            *ngFor="let c of clientesFiltrados"
+                            class="dropdown-item"
+                            type="button"
+                            (click)="seleccionarCliente(c)">
+                            <div class="dropdown-item-avatar">
+                                {{ c.nombre.charAt(0) }}{{ c.apellido.charAt(0) }}
+                            </div>
+                            <div class="dropdown-item-info">
+                                <span class="item-nombre">{{ c.nombreCompleto }}</span>
+                                <span class="item-tel">{{ c.telefono }}</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Teléfono (solo lectura, se autocompleta) -->
+            <div class="field-group" *ngIf="clienteSeleccionado">
+                <label class="field-label">
+                    <ion-icon name="call-outline"></ion-icon>
+                    Teléfono
+                </label>
+                <input class="field-input field-readonly"
+                       type="tel"
+                       [value]="clienteSeleccionado.telefono"
+                       readonly />
+            </div>
+
+            <!-- Fecha Inicio -->
+            <div class="field-group">
+                <label class="field-label">
+                    <ion-icon name="calendar-outline"></ion-icon>
+                    Fecha de inicio
+                </label>
+                <input class="field-input" type="date"
+                       [(ngModel)]="form.fechaInicio"
+                       [disabled]="saving" />
+            </div>
+
+            <!-- Fecha Fin -->
+            <div class="field-group">
+                <label class="field-label">
+                    <ion-icon name="calendar-outline"></ion-icon>
+                    Fecha de vencimiento
+                </label>
+                <input class="field-input" type="date"
+                       [(ngModel)]="form.fechaFin"
+                       [disabled]="saving" />
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer">
+            <button class="btn-cancel" type="button" (click)="cancelar()" [disabled]="saving">
+                Cancelar
+            </button>
+            <button class="btn-save" type="button" (click)="guardar()" [disabled]="saving">
+                <ion-icon name="checkmark-outline" *ngIf="!saving"></ion-icon>
+                <ion-spinner name="crescent" *ngIf="saving" style="width:18px;height:18px;"></ion-spinner>
+                {{ saving ? 'Guardando...' : (isEdicion ? 'Actualizar' : 'Asignar') }}
+            </button>
+        </div>
+    </div>
+</div>

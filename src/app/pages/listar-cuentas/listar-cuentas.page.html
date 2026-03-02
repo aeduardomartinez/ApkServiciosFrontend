@@ -1,0 +1,127 @@
+<!-- listar-cuentas.page.html -->
+
+<!-- Search -->
+<ion-searchbar *ngIf="!hideSearchbar" class="app-search" placeholder="Buscar por servicio, correo o perfil..."
+  (ionInput)="onSearch($event)">
+</ion-searchbar>
+
+<!-- Loading -->
+<div *ngIf="loading" class="ion-padding">
+  <ion-skeleton-text animated style="width: 90%; height: 18px;"></ion-skeleton-text>
+  <ion-skeleton-text animated style="width: 70%; height: 18px;"></ion-skeleton-text>
+  <ion-skeleton-text animated style="width: 100%; height: 120px; border-radius: 16px;"></ion-skeleton-text>
+</div>
+
+<!-- Empty -->
+<div *ngIf="!loading && filtered.length === 0" class="empty-state">
+  <ion-icon name="folder-open-outline"></ion-icon>
+  <h3>No hay cuentas</h3>
+  <p>Intenta con otro criterio de búsqueda.</p>
+</div>
+
+<!-- List -->
+<div *ngIf="!loading && filtered.length > 0" class="list-wrapper">
+
+  <div *ngFor="let c of filtered; trackBy: trackByCuentaId" class="account-card">
+
+    <!-- Header -->
+    <div class="account-header">
+      <div class="logo">
+        <ion-icon name="tv-outline"></ion-icon>
+      </div>
+
+      <div class="header-main">
+        <div class="title-row">
+          <h2 class="service-name">{{ c.servicioNombre }}</h2>
+          <span class="badge badge--neutral">Vence: {{ formatFecha(c.fechaFin) }}</span>
+        </div>
+
+        <div class="meta-row">
+          <span class="correo">{{ c.correo }}</span>
+
+          <span class="clave">
+            clave: {{ c.showClave ? '(ver en sistema)' : '••••••••' }}
+          </span>
+
+          <button class="icon-btn" type="button" (click)="toggleClave(c)">
+            <ion-icon [name]="c.showClave ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Perfiles -->
+    <div class="perfiles-title">
+      <span>Perfiles:</span>
+      <span class="count-pill">{{ c.perfiles?.length || 0 }}</span>
+      <span class="perfiles-hint">
+        <ion-icon name="pencil-outline"></ion-icon>
+        Toca una fila para editar o asignar
+      </span>
+    </div>
+
+    <div class="table-scroll">
+      <div class="table-wrapper">
+        <div class="table">
+          <div class="thead">
+            <div class="cell">Perfil</div>
+            <div class="cell">Inicio</div>
+            <div class="cell">Fin</div>
+            <div class="cell">Estado</div>
+            <div class="cell center">Acciones</div>
+          </div>
+
+          <div class="tbody">
+            <div *ngFor="let p of c.perfiles; trackBy: trackByPerfilId" class="row"
+              [class.row--libre]="!p.nombreCliente || p.nombreCliente.trim() === ''">
+              <div class="cell name">
+                {{ formatPerfilNombre(p) }}
+              </div>
+              <div class="cell">{{ formatFecha(p.fechaInicio) }}</div>
+              <div class="cell">{{ formatFecha(p.fechaFin) }}</div>
+              <div class="cell">
+                <span [class]="estadoClass(p.estado)">{{ estadoLabel(p.estado) }}</span>
+              </div>
+              <div class="cell center" style="display: flex; align-items: center; justify-content: center; gap: 4px;">
+                <!-- Libre: Mostrar Agregar -->
+                <ion-button fill="clear" color="primary" class="action-btn"
+                  style="--padding-start: 4px; --padding-end: 4px; margin: 0; min-height: 24px; height: 32px;"
+                  *ngIf="!p.nombreCliente || p.nombreCliente.trim() === ''" (click)="openPerfilModal(c, p)">
+                  <ion-icon slot="icon-only" name="person-add-outline" style="font-size: 18px;"></ion-icon>
+                </ion-button>
+
+                <!-- Ocupado: Mostrar Editar y Liberar -->
+                <ng-container *ngIf="p.nombreCliente && p.nombreCliente.trim() !== ''">
+                  <ion-button fill="clear" color="primary" class="action-btn"
+                    style="--padding-start: 4px; --padding-end: 4px; margin: 0; min-height: 24px; height: 32px;"
+                    (click)="openPerfilModal(c, p)">
+                    <ion-icon slot="icon-only" name="pencil-outline" style="font-size: 18px;"></ion-icon>
+                  </ion-button>
+
+                  <ion-button fill="clear" color="danger" class="btn-liberar"
+                    style="--padding-start: 4px; --padding-end: 4px; margin: 0; min-height: 24px; height: 32px;"
+                    (click)="confirmarLiberar($event, c.id, p.id, p.nombreCliente)">
+                    <ion-icon slot="icon-only" name="trash-outline" style="font-size: 18px;"></ion-icon>
+                  </ion-button>
+                </ng-container>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Expand/Collapse -->
+    <div *ngIf="(c.perfiles.length || 0) > 6" class="more-row">
+      <button class="more-btn" type="button" (click)="toggleExpanded(c)">
+        <ion-icon [name]="c.expanded ? 'chevron-up-outline' : 'chevron-down-outline'"></ion-icon>
+        {{ c.expanded ? 'Ver menos' : '... y ' + ((c.perfiles.length || 0) - 6) + ' perfiles más' }}
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal de perfil (overlay) -->
+<app-perfil-modal *ngIf="modalOpen" [data]="modalData!" (saved)="onModalSaved()" (cancelled)="onModalCancelled()">
+</app-perfil-modal>

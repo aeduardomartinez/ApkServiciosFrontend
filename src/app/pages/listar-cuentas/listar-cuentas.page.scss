@@ -1,0 +1,299 @@
+:host {
+  display: block;
+}
+
+.loading,
+.empty {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  padding: 18px 0;
+  color: rgba(28, 42, 58, 0.65);
+  font-weight: 600;
+}
+
+.accounts {
+  display: grid;
+  gap: 14px;
+  margin-top: 12px;
+}
+
+.account-card {
+  background: var(--app-surface);
+  border: 1px solid rgba(var(--ion-color-primary-rgb), 0.12);
+  border-radius: 18px;
+  box-shadow: var(--app-shadow-md);
+  padding: 12px;
+}
+
+.account-header {
+  display: grid;
+  grid-template-columns: 54px 1fr;
+  gap: 12px;
+  align-items: start;
+}
+
+.logo {
+  width: 54px;
+  height: 54px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: rgba(var(--ion-color-primary-rgb), 0.12);
+  color: var(--ion-color-primary);
+  box-shadow: 0 8px 18px rgba(23, 52, 100, 0.10);
+
+  ion-icon {
+    font-size: 26px;
+  }
+}
+
+.meta {
+  min-width: 0;
+}
+
+.title-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.service-name {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--ion-text-color);
+}
+
+.dash {
+  color: rgba(28, 42, 58, 0.55);
+  font-weight: 800;
+}
+
+.expires {
+  color: rgba(28, 42, 58, 0.75);
+  font-weight: 700;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.sub-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.email {
+  font-size: 16px;
+  font-weight: 700;
+  color: rgba(28, 42, 58, 0.85);
+}
+
+.pwd {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(28, 42, 58, 0.65);
+  font-weight: 700;
+}
+
+.pwd-dots {
+  letter-spacing: 2px;
+}
+
+.ghost-btn {
+  margin-left: auto;
+  border: 0;
+  background: rgba(var(--ion-color-primary-rgb), 0.10);
+  color: var(--ion-color-primary);
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+}
+
+.badge {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-weight: 900;
+  font-size: 14px;
+}
+
+.badge--ok {
+  background: rgba(39, 174, 96, 0.12);
+  color: #1f7a42;
+}
+
+.badge--soon {
+  background: rgba(243, 156, 18, 0.14);
+  color: #8a5a00;
+}
+
+.badge--warn {
+  background: rgba(243, 156, 18, 0.18);
+  color: #7a4b00;
+}
+
+.badge--danger {
+  background: rgba(231, 76, 60, 0.14);
+  color: #a32012;
+}
+
+/* -------- Perfiles ---------- */
+
+.profiles {
+  margin-top: 12px;
+}
+
+.profiles-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 900;
+  color: rgba(28, 42, 58, 0.85);
+  margin-bottom: 8px;
+
+  .count {
+    background: rgba(var(--ion-color-primary-rgb), 0.12);
+    color: var(--ion-color-primary);
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 900;
+  }
+}
+
+/* Evita que las columnas se aplasten raro */
+.table-head,
+.table-row {
+  grid-template-columns: minmax(180px, 1.35fr) 110px 110px 120px 110px;
+  column-gap: 10px;
+}
+
+.table {
+  border: 1px solid rgba(28, 42, 58, 0.12);
+  border-radius: 16px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.table-wrapper {
+  min-width: 720px;
+  /* <-- súbelo/bájalo según tus datos */
+}
+
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  /* que no se “corte” el radio de la tarjeta al scrollear */
+  border-radius: 16px;
+}
+
+.thead,
+.row {
+  display: grid;
+  grid-template-columns: 1.4fr 0.9fr 0.9fr 0.8fr 0.8fr;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+}
+
+.thead {
+  background: rgba(79, 159, 230, 0.10);
+  font-weight: 900;
+  color: rgba(28, 42, 58, 0.75);
+  border-bottom: 1px solid rgba(28, 42, 58, 0.10);
+}
+
+.tbody .row {
+  border-bottom: 1px solid rgba(28, 42, 58, 0.08);
+}
+
+.tbody .row:last-child {
+  border-bottom: 0;
+}
+
+.cell.name {
+  font-weight: 800;
+  color: rgba(28, 42, 58, 0.90);
+}
+
+.right {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* -------- Chips de estado ---------- */
+
+.chip {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-weight: 900;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.chip--ok {
+  background: rgba(39, 174, 96, 0.14);
+  color: #1f7a42;
+}
+
+.chip--info {
+  background: rgba(52, 152, 219, 0.14);
+  color: #1b6aa1;
+}
+
+.chip--warn {
+  background: rgba(243, 156, 18, 0.18);
+  color: #7a4b00;
+}
+
+.chip--danger {
+  background: rgba(231, 76, 60, 0.16);
+  color: #a32012;
+}
+
+.chip--soon {
+  background: rgba(243, 156, 18, 0.14);
+  color: #8a5a00;
+}
+
+/* Permite truncar nombre largo sin romper */
+.col-perfil {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Opcional: en estado que no rompa */
+.col-estado {
+  min-width: 0;
+}
+
+/* Mejor UX: una “pista” visual de que hay scroll */
+.table-scroll::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-scroll::-webkit-scrollbar-thumb {
+  background: rgba(28, 42, 58, 0.18);
+  border-radius: 999px;
+}
+
+.table-scroll::-webkit-scrollbar-track {
+  background: rgba(28, 42, 58, 0.06);
+  border-radius: 999px;
+}

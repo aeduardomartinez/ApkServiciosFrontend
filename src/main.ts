@@ -1,14 +1,25 @@
 import { bootstrapApplication } from '@angular/platform-browser';
-import { RouteReuseStrategy, provideRouter, withPreloading, PreloadAllModules } from '@angular/router';
-import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalone';
-
+import { addIcons } from 'ionicons';
+import {
+   checkmarkCircleOutline,
+  settingsOutline,
+  gridOutline,
+  cardOutline,
+  peopleCircleOutline,
+  personAddOutline,
+  peopleOutline
+} from 'ionicons/icons';
 import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
+import { appConfig } from './app/core/config/app.config';
 
-bootstrapApplication(AppComponent, {
-  providers: [
-    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    provideIonicAngular(),
-    provideRouter(routes, withPreloading(PreloadAllModules)),
-  ],
+addIcons({
+  'checkmark-circle-outline': checkmarkCircleOutline,
+  'settings-outline': settingsOutline,
+  'grid-outline': gridOutline,
+  'card-outline': cardOutline,
+  'people-circle-outline': peopleCircleOutline,
+  'person-add-outline': personAddOutline,
+  'people-outline': peopleOutline,
 });
+bootstrapApplication(AppComponent, appConfig);
