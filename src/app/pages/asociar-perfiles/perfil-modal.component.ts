@@ -82,7 +82,9 @@ export class PerfilModalComponent implements OnInit {
         this.loadingClientes = true;
         this.listarClientes.execute().subscribe({
             next: (data) => {
-                this.clientes = data ?? [];
+                this.clientes = (data ?? []).sort((a, b) =>
+                    (a.nombreCompleto || '').toLowerCase().localeCompare((b.nombreCompleto || '').toLowerCase())
+                );
                 this.clientesFiltrados = [...this.clientes];
                 this.loadingClientes = false;
 

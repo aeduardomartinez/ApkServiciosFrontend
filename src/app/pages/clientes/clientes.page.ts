@@ -20,10 +20,11 @@ type VistaModal = 'crear' | 'editar' | null;
 interface ClienteForm {
     nombre: string;
     apellido: string;
+    codigoPais: string;
     telefono: string;
 }
 
-const FORM_VACIO: ClienteForm = { nombre: '', apellido: '', telefono: '' };
+const FORM_VACIO: ClienteForm = { nombre: '', apellido: '', codigoPais: '57', telefono: '' };
 
 @Component({
     selector: 'app-clientes',
@@ -68,20 +69,29 @@ export class ClientesPage implements OnInit {
         });
     }
 
-    ngOnInit(): void {
+    ngOnInit() {}
+    ionViewWillEnter(): void {
         this.cargar();
     }
 
     // ── Carga ─────────────────────────────────────────────
     cargar(): void {
         this.loading = true;
+        this.errorMsg = ''; // Reset error message
         this.listarClientes.execute().subscribe({
             next: (data) => {
-                this.clientes = data ?? [];
+                this.clientes = (data ?? []).sort((a, b) =>
+                    (a.nombreCompleto || '').toLowerCase().localeCompare((b.nombreCompleto || '').toLowerCase())
+                );
                 this.aplicarFiltro();
                 this.loading = false;
             },
-            error: () => { this.loading = false; },
+            error: (err: any) => { 
+                this.loading = false; 
+                const msg = err?.error?.mensaje || err?.message || 'Error desconocido';
+                this.errorMsg = `Error: ${msg}`;
+                console.error('List fetch error:', err);
+            },
         });
     }
 
@@ -95,10 +105,10 @@ export class ClientesPage implements OnInit {
         const q = this.busqueda.trim();
         if (!q) { this.filtrados = [...this.clientes]; return; }
         this.filtrados = this.clientes.filter(c =>
-            c.nombreCompleto.toLowerCase().includes(q) ||
-            c.telefono.includes(q) ||
-            c.nombre.toLowerCase().includes(q) ||
-            c.apellido.toLowerCase().includes(q)
+            (c.nombreCompleto?.toLowerCase() ?? '').includes(q) ||
+            (c.telefono ?? '').includes(q) ||
+            (c.nombre?.toLowerCase() ?? '').includes(q) ||
+            (c.apellido?.toLowerCase() ?? '').includes(q)
         );
     }
 
@@ -112,10 +122,23 @@ export class ClientesPage implements OnInit {
 
     abrirEditar(cliente: ClienteRegistrado): void {
         this.clienteEditando = cliente;
+        
+        let tel = cliente.telefono || '';
+        let cod = '57';
+
+        if (tel.startsWith('+57')) {
+            cod = '57';
+            tel = tel.substring(3);
+        } else if (tel.startsWith('57') && tel.length >= 12) {
+            cod = '57';
+            tel = tel.substring(2);
+        }
+
         this.form = {
             nombre: cliente.nombre,
             apellido: cliente.apellido,
-            telefono: cliente.telefono,
+            codigoPais: cod,
+            telefono: tel,
         };
         this.errorMsg = '';
         this.vistaModal = 'editar';
@@ -137,7 +160,7 @@ export class ClientesPage implements OnInit {
         const payload: CrearClienteRequest = {
             nombre: this.form.nombre.trim(),
             apellido: this.form.apellido.trim(),
-            telefono: this.form.telefono.trim(),
+            telefono: `${this.form.codigoPais}${this.form.telefono.trim()}`,
         };
 
         const obs$ = this.vistaModal === 'editar'
@@ -169,8 +192,9 @@ export class ClientesPage implements OnInit {
         if (!this.form.telefono.trim()) {
             this.errorMsg = 'El teléfono es obligatorio.'; return false;
         }
-        if (!/^\+?[0-9]{10,15}$/.test(this.form.telefono.trim())) {
-            this.errorMsg = 'Formato de teléfono inválido (10-15 dígitos).'; return false;
+        const telCompleto = `${this.form.codigoPais}${this.form.telefono.trim()}`;
+        if (!/^\+?[0-9]{10,16}$/.test(telCompleto)) {
+            this.errorMsg = 'Formato de teléfono inválido.'; return false;
         }
         this.errorMsg = '';
         return true;

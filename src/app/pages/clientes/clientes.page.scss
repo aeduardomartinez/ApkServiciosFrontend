@@ -1,6 +1,8 @@
 /* ===== General Pages Styles ===== */
 :host {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
     font-family: var(--ion-font-family, inherit);
 }
 
@@ -29,6 +31,7 @@
     margin: 0;
     background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-secondary, #805ad5));
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     letter-spacing: -0.5px;
 }
@@ -585,4 +588,49 @@
 
 ion-fab {
     margin-bottom: 24px;
+}
+
+/* ===== Country Prefix Selector ===== */
+.country-prefix {
+    display: flex;
+    align-items: center;
+    background: var(--ion-color-step-50, #f4f5f8);
+    border: 1px solid rgba(var(--ion-text-color-rgb), 0.1);
+    border-radius: 12px;
+    padding: 0 10px;
+    transition: all 0.2s ease;
+
+    &:focus-within {
+        background: var(--ion-color-step-100, #fff);
+        border-color: var(--ion-color-primary);
+        box-shadow: 0 0 0 3px rgba(var(--ion-color-primary-rgb), 0.1);
+    }
+
+    .prefix-select {
+        appearance: none;
+        background: transparent;
+        border: none;
+        font-size: 15px;
+        font-weight: 500;
+        color: var(--ion-text-color);
+        outline: none;
+        cursor: pointer;
+        padding: 14px 4px 14px 0;
+    }
+
+    .prefix-icon {
+        font-size: 14px;
+        color: var(--ion-color-medium);
+        pointer-events: none;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .country-prefix {
+        background: rgba(255, 255, 255, 0.05);
+
+        &:focus-within {
+            background: rgba(255, 255, 255, 0.08);
+        }
+    }
 }

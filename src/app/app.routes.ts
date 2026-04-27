@@ -6,12 +6,12 @@ export const routes: Routes = [
     path: 'tabs',
     component: TabsPage,
     children: [
-      // TAB 1 -> Crear Servicio
+      // TAB 1 -> Inicio / Dashboard
       {
         path: 'tab1',
         loadComponent: () =>
-          import('./pages/crear-servicio/crear-servicio.page').then(
-            (m) => m.CrearServicioPage
+          import('./pages/inicio/inicio.page').then(
+            (m) => m.InicioPage
           ),
       },
 
@@ -43,6 +43,10 @@ export const routes: Routes = [
   // Redirect global
   { path: '', redirectTo: 'tabs/tab1', pathMatch: 'full' },
 
+  {
+    path: 'crear-servicio',
+    loadComponent: () => import('./pages/crear-servicio/crear-servicio.page').then(m => m.CrearServicioPage)
+  },
   {
     path: 'crear-cuenta',
     loadComponent: () => import('./pages/crear-cuenta/crear-cuenta.page').then(m => m.CrearCuentaPage)

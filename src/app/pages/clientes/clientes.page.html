@@ -4,7 +4,12 @@
     </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
+<ion-content class="ion-padding" [fullscreen]="true">
+    <div *ngIf="errorMsg && !modalAbierto" class="error-banner" style="margin-bottom: 16px;">
+        <ion-icon name="alert-circle-outline"></ion-icon>
+        {{ errorMsg }}
+    </div>
+
     <div class="clientes-page">
 
         <!-- ── HEADER ─────────────────────────────────────── -->
@@ -126,8 +131,22 @@
                         <ion-icon name="call-outline"></ion-icon>
                         Teléfono
                     </label>
-                    <input class="field-input" type="tel" placeholder="Ej: 3001234567" [(ngModel)]="form.telefono"
-                        [disabled]="saving" />
+                    <div style="display: flex; align-items: stretch; gap: 8px;">
+                        <div class="country-prefix">
+                            <select [(ngModel)]="form.codigoPais" [disabled]="saving" class="prefix-select">
+                                <option value="57">🇨🇴 +57</option>
+                                <option value="52">🇲🇽 +52</option>
+                                <option value="54">🇦🇷 +54</option>
+                                <option value="56">🇨🇱 +56</option>
+                                <option value="51">🇵🇪 +51</option>
+                                <option value="1">🇺🇸 +1</option>
+                                <option value="34">🇪🇸 +34</option>
+                            </select>
+                            <ion-icon name="chevron-down-outline" class="prefix-icon"></ion-icon>
+                        </div>
+                        <input class="field-input" style="flex: 1;" type="tel" placeholder="Ej: 3001234567" [(ngModel)]="form.telefono"
+                            [disabled]="saving" />
+                    </div>
                 </div>
             </div>
 

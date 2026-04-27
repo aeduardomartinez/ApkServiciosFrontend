@@ -50,6 +50,7 @@ export class CrearCuentaPage implements OnInit {
   });
 
   @Output() closed = new EventEmitter<void>();
+  @Output() saved = new EventEmitter<void>();
 
   showClave = false;
 
@@ -100,6 +101,7 @@ export class CrearCuentaPage implements OnInit {
           fechaFin: '',
         });
 
+        this.saved.emit();
         this.close(); // Emit close event to automatically dismiss modal
       },
       error: async (err: unknown) => {

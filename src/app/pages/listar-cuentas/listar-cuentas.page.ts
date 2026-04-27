@@ -1,14 +1,19 @@
-import { Component, OnInit, Input, inject } from '@angular/core';
+import {
+  Component, Input, Output, EventEmitter,
+  OnInit, OnChanges, SimpleChanges, ChangeDetectorRef, inject, ViewChild
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule, AlertController } from '@ionic/angular';
+import { IonicModule, AlertController, ToastController } from '@ionic/angular';
 import { CuentaListResponse, PerfilResponse } from 'src/app/servicios/domain/cuenta.models';
 import { ListarCuentasUseCase } from 'src/app/servicios/application/listar-cuentas.usecase';
 import { LiberarPerfilUseCase } from 'src/app/servicios/application/liberar-perfil.usecase';
+import { NotificationService } from 'src/app/servicios/infrastructure/notification.service';
 import {
   PerfilModalComponent,
   PerfilModalData,
 } from 'src/app/pages/asociar-perfiles/perfil-modal.component';
 import { addIcons } from 'ionicons';
+import { getServiceIcon, onServiceImgError } from 'src/app/shared/utils/service-icons.util';
 import {
   tvOutline,
   eyeOutline,
@@ -21,11 +26,26 @@ import {
   pencilOutline,
   personAddOutline,
   trashOutline,
+  searchOutline,
+  sendOutline,
+  filterOutline,
+  mailOutline,
+  lockClosedOutline,
+  calendarOutline,
+  copyOutline
 } from 'ionicons/icons';
 
+/**
+ * Extensión de CuentaListResponse para estado de UI:
+ * - expanded:        tarjeta desplegada (más de 6 perfiles)
+ * - showClave:       contraseña visible
+ * - visiblePerfiles: subconjunto de perfiles a mostrar según el filtro activo.
+ *                    Si no hay búsqueda coincide con `perfiles` completos.
+ */
 type CuentaUi = CuentaListResponse & {
   expanded?: boolean;
   showClave?: boolean;
+  visiblePerfiles: PerfilResponse[];
 };
 
 @Component({
@@ -35,11 +55,13 @@ type CuentaUi = CuentaListResponse & {
   standalone: true,
   imports: [IonicModule, CommonModule, PerfilModalComponent],
 })
-export class ListarCuentasPage implements OnInit {
-
+export class ListarCuentasPage implements OnInit, OnChanges {
+  private readonly cdr = inject(ChangeDetectorRef);
   private readonly listarCuentas = inject(ListarCuentasUseCase);
   private readonly liberarPerfil = inject(LiberarPerfilUseCase);
   private readonly alertCtrl = inject(AlertController);
+  private readonly toastCtrl = inject(ToastController);
+  private readonly notificationService = inject(NotificationService);
 
   private _servicioId: number | undefined;
 
@@ -47,9 +69,6 @@ export class ListarCuentasPage implements OnInit {
   set servicioId(value: string | number | undefined) {
     const parsed = value !== undefined && value !== null ? Number(value) : undefined;
     this._servicioId = parsed;
-    if (this._initialized) {
-      this.load(this._servicioId);
-    }
   }
 
   get servicioId(): number | undefined {
@@ -62,6 +81,7 @@ export class ListarCuentasPage implements OnInit {
   cuentas: CuentaUi[] = [];
   filtered: CuentaUi[] = [];
   search = '';
+  soloDisponibles = false;
 
   @Input() hideSearchbar = false;
 
@@ -87,75 +107,133 @@ export class ListarCuentasPage implements OnInit {
       tvOutline, eyeOutline, eyeOffOutline, listOutline,
       addCircleOutline, chevronDownOutline, chevronUpOutline,
       folderOpenOutline, pencilOutline, personAddOutline, trashOutline,
+      searchOutline, sendOutline, filterOutline, mailOutline, lockClosedOutline, calendarOutline, copyOutline
     });
   }
 
-  ngOnInit(): void {
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['servicioId'] || changes['globalSearchTerm']) {
+      if (this._initialized) {
+        this.load(this.servicioId);
+      }
+    }
+  }
+
+  ngOnInit() {
     this._initialized = true;
     if (this._globalSearch) {
       this.search = this._globalSearch;
     }
-    this.load(this._servicioId);
+    this.load(this.servicioId);
   }
 
-  load(servicio?: number): void {
+  load(servicio?: string | number): void {
     this.loading = true;
-    this.listarCuentas.execute(servicio).subscribe({
+    this.cuentas = [];
+    this.filtered = [];
+    this.cdr.detectChanges();
+
+    const parsedId = (servicio !== undefined && servicio !== null) ? Number(servicio) : undefined;
+
+    this.listarCuentas.execute(parsedId).subscribe({
       next: (data: CuentaListResponse[]) => {
+        // Ordenar perfiles: primero alfabéticamente por nombre, los LIBRES al final
         this.cuentas = (data ?? []).map((c) => {
           const sortedPerfiles = (c.perfiles ?? []).sort((a, b) => {
             const nameA = (a.nombreCliente || '').trim().toLowerCase();
             const nameB = (b.nombreCliente || '').trim().toLowerCase();
-            // Poner los libres al final
-            if (!nameA && nameB) return 1;
-            if (nameA && !nameB) return -1;
+            if (!nameA && nameB)  return 1;   // a es LIBRE → va al final
+            if (nameA  && !nameB) return -1;  // b es LIBRE → va al final
+            if (!nameA && !nameB) return 0;
             return nameA.localeCompare(nameB);
           });
 
           return {
             ...c,
+            clave: c.clave || '',
             perfiles: sortedPerfiles,
+            // Por defecto todos los perfiles son visibles (sin búsqueda activa)
+            visiblePerfiles: sortedPerfiles,
             expanded: false,
             showClave: false,
           };
         });
+
+        // BUG FIX: restaurar el término de búsqueda activo ANTES de filtrar.
+        // Si se deja this.search = '' aquí, la búsqueda global que viene del
+        // componente padre (cuentas.page) se pierde y el filtro nunca aplica.
+        this.search = this._globalSearch || '';
         this.applyFilter();
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (err: unknown) => {
-        console.error(err);
+        console.error('[ListarCuentas] Error al cargar cuentas:', err);
         this.loading = false;
+        this.cdr.detectChanges();
       },
     });
   }
 
   // ========== Search ==========
-  onSearch(ev: CustomEvent): void {
+  onSearch(ev: any): void {
     this.search = (ev.detail?.value ?? '').toString();
     this.applyFilter();
+    this.cdr.detectChanges();
+  }
+
+  toggleSoloDisponibles(ev: any): void {
+    this.soloDisponibles = ev.detail.checked;
+    this.applyFilter();
+    this.cdr.detectChanges();
   }
 
   private applyFilter(): void {
     const q = this.search.trim().toLowerCase();
 
-    if (!q) {
-      this.filtered = [...this.cuentas];
-      return;
-    }
-
     this.filtered = this.cuentas.filter((c) => {
+      // 1. Filtro de disponibilidad
+      if (this.soloDisponibles && this.getFreeSlots(c) === 0) {
+        return false;
+      }
+
+      // 2. Sin búsqueda → todos los perfiles son visibles
+      if (!q) {
+        c.visiblePerfiles = c.perfiles;
+        return true;
+      }
+
+      // 3. La cuenta coincide por correo o nombre de servicio →
+      //    mostrar TODOS sus perfiles (el match es a nivel de cuenta)
       const matchCuenta =
         (c.servicioNombre ?? '').toLowerCase().includes(q) ||
         (c.correo ?? '').toLowerCase().includes(q);
 
-      const matchPerfil = (c.perfiles ?? []).some((p) => {
-        const nombre = (p.nombreCliente ?? '').toLowerCase();
-        const estado = (p.estado ?? '').toLowerCase();
-        return nombre.includes(q) || estado.includes(q);
-      });
+      if (matchCuenta) {
+        c.visiblePerfiles = c.perfiles;
+        return true;
+      }
 
-      return matchCuenta || matchPerfil;
+      // 4. Filtrar solo los perfiles que coinciden con el término de búsqueda
+      //    (por nombre de cliente o estado)
+      const perfilesFiltrados = (c.perfiles ?? []).filter((p) =>
+        (p.nombreCliente ?? '').toLowerCase().includes(q) ||
+        (p.estado ?? '').toLowerCase().includes(q)
+      );
+
+      if (perfilesFiltrados.length > 0) {
+        // Solo mostrar los perfiles que coincidieron
+        c.visiblePerfiles = perfilesFiltrados;
+        return true;
+      }
+
+      return false;
     });
+  }
+
+  getFreeSlots(c: CuentaUi): number {
+    if (!c.perfiles) return 0;
+    return c.perfiles.filter(p => !p.nombreCliente || p.nombreCliente.trim() === '').length;
   }
 
   // ========== Modal de perfil ==========
@@ -170,20 +248,23 @@ export class ListarCuentasPage implements OnInit {
       fechaInicio: esLibre ? '' : (perfil.fechaInicio ?? ''),
       fechaFin: esLibre ? '' : (perfil.fechaFin ?? ''),
     };
+    console.log('[Depuración] Datos del modal preparados:', this.modalData);
+    this.cdr.detectChanges();
   }
 
   onModalSaved(): void {
     this.modalData = null;
-    this.load(this._servicioId);
+    this.load(this.servicioId);
   }
 
   onModalCancelled(): void {
     this.modalData = null;
+    this.cdr.detectChanges();
   }
 
   // ========== Liberar Perfil ==========
   async confirmarLiberar(ev: Event, cuentaId: number, perfilId: string, nombreCliente: string): Promise<void> {
-    ev.stopPropagation(); // Prevents opening the edit modal
+    ev.stopPropagation();
 
     const alert = await this.alertCtrl.create({
       header: 'Liberar Perfil',
@@ -207,16 +288,45 @@ export class ListarCuentasPage implements OnInit {
   }
 
   private ejecutarLiberar(cuentaId: number, perfilId: string): void {
-    this.loading = true; // reusing existing loading state
+    this.loading = true;
     this.liberarPerfil.execute(cuentaId, perfilId).subscribe({
       next: () => {
-        // Recargar datos tras éxito
-        this.load(this._servicioId);
+        this.load(this.servicioId);
       },
       error: (err) => {
         console.error('Error al liberar perfil:', err);
         this.loading = false;
+        this.cdr.detectChanges();
       },
+    });
+  }
+
+  // ========== Enviar Recordatorio (Mensaje de cobro) ==========
+  enviarMensajeCobro(ev: Event, perfilId: string, nombreCliente: string): void {
+    ev.stopPropagation();
+
+    // Llamamos al endpoint individual por perfilId
+    this.notificationService.enviarRecordatorioPerfil(perfilId).subscribe({
+      next: async () => {
+        const toast = await this.toastCtrl.create({
+          message: `✅ Recordatorio enviado a ${nombreCliente}`,
+          duration: 3000,
+          color: 'success',
+          position: 'top'
+        });
+        toast.present();
+      },
+      error: async (err) => {
+        console.error('Error al enviar recordatorio individual:', err);
+        const errorDetail = err?.error || err?.message || 'Error desconocido';
+        const toast = await this.toastCtrl.create({
+          message: `Ocurrió un error al enviar el recordatorio: ${errorDetail}`,
+          duration: 4000,
+          color: 'danger',
+          position: 'top'
+        });
+        toast.present();
+      }
     });
   }
 
@@ -232,10 +342,28 @@ export class ListarCuentasPage implements OnInit {
   // ========== UI toggles ==========
   toggleExpanded(c: CuentaUi): void {
     c.expanded = !c.expanded;
+    this.cdr.detectChanges();
   }
 
   toggleClave(c: CuentaUi): void {
     c.showClave = !c.showClave;
+    this.cdr.detectChanges();
+  }
+
+  async copiarAlPortapapeles(texto: string) {
+    if (!texto) return;
+    try {
+      await navigator.clipboard.writeText(texto);
+      const toast = await this.toastCtrl.create({
+        message: 'Copiado al portapapeles',
+        duration: 1500,
+        color: 'dark',
+        position: 'bottom'
+      });
+      toast.present();
+    } catch (err) {
+      console.error('Error al copiar:', err);
+    }
   }
 
   // ========== Formateadores ==========
@@ -262,9 +390,8 @@ export class ListarCuentasPage implements OnInit {
 
       const strValue = String(value);
       const matchISO = strValue.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
-      let y, m, d;
       if (matchISO) {
-        [, y, m, d] = matchISO;
+        const [, y, m, d] = matchISO;
         const mesIdx = parseInt(m, 10) - 1;
         const mesNombre = meses[mesIdx] || m;
         return `${parseInt(d, 10)} de ${mesNombre}`;
@@ -272,7 +399,7 @@ export class ListarCuentasPage implements OnInit {
 
       const matchSlash = strValue.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
       if (matchSlash) {
-        [, d, m, y] = matchSlash;
+        const [, d, m, y] = matchSlash;
         const mesIdx = parseInt(m, 10) - 1;
         const mesNombre = meses[mesIdx] || m;
         return `${parseInt(d, 10)} de ${mesNombre}`;
@@ -311,5 +438,14 @@ export class ListarCuentasPage implements OnInit {
 
   cuentaBadgeClass(_: CuentaUi): string {
     return 'badge--neutral';
+  }
+
+  // ========== Íconos de Servicios ==========
+  getServiceIcon(nombre: string | null | undefined): string {
+    return getServiceIcon(nombre);
+  }
+
+  onImgError(event: Event): void {
+    onServiceImgError(event);
   }
 }

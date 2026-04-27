@@ -16,17 +16,21 @@ export class ServiciosApiService {
     return this.http.post<ServicioResponse>(`${this.baseUrl}/api/servicios`, payload);
   }
 
+  eliminarServicio(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/api/servicios/${id}`);
+  }
+
   crearCuenta(payload: CrearCuentaRequest): Observable<CuentaResponse> {
     return this.http.post<CuentaResponse>(`${this.baseUrl}/api/cuentas/crear`, payload);
   }
 
   listarServicios(): Observable<ServicioListItem[]> {
-    return this.http.get<ServicioListItem[]>(`${this.baseUrl}/api/servicios`);
+    const params = new HttpParams().set('_t', Date.now().toString());
+    return this.http.get<ServicioListItem[]>(`${this.baseUrl}/api/servicios`, { params });
   }
 
-
   listarCuentas(servicio?: number): Observable<CuentaListResponse[]> {
-    let params = new HttpParams();
+    let params = new HttpParams().set('_t', Date.now().toString());
 
     if (servicio !== undefined && servicio !== null) {
       params = params.set('servicio', String(servicio));
@@ -36,7 +40,6 @@ export class ServiciosApiService {
       `${this.baseUrl}/api/cuentas`,
       { params }
     );
-
   }
 
   asignarPerfil(cuentaId: number, payload: AsignarPerfilRequest): Observable<unknown> {

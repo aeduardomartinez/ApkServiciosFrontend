@@ -34,4 +34,51 @@
 
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
-@import '@ionic/angular/css/palettes/dark.system.css';
+/* @import '@ionic/angular/css/palettes/dark.system.css'; */
+
+/* FIX FOR MOBILE DEVICE DARK MODE AND TABS OBSCURING FABS */
+:root, html, body, ion-app, ion-content {
+  background-color: #f4f8ff !important;
+  color: #1c2a3a !important;
+  --ion-background-color: #f4f8ff !important;
+  --ion-text-color: #1c2a3a !important;
+  --ion-color-step-50: #f4f5f8 !important;
+  --ion-color-step-100: #ffffff !important;
+  --ion-color-step-300: #cccccc !important;
+  color-scheme: light !important;
+}
+
+/* ── Global typography ─────────────────────────── */
+* {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+}
+
+/* ── Ensure fabs are pushed above the bottom tab bar ── */
+ion-fab[vertical="bottom"] {
+  margin-bottom: 0 !important;
+  bottom: calc(70px + env(safe-area-inset-bottom)) !important;
+}
+
+/* ── Shared entry animations ───────────────────── */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes pulse-ring {
+  0%   { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(48, 142, 224, 0.45); }
+  70%  { transform: scale(1);    box-shadow: 0 0 0 10px rgba(48, 142, 224, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(48, 142, 224, 0); }
+}
+
+/* ── Gradient FAB global override ──────────────── */
+ion-fab-button {
+  --background: linear-gradient(135deg, #308ee0 0%, #1a6cc4 100%);
+  --background-activated: linear-gradient(135deg, #1a6cc4 0%, #0e4a8a 100%);
+  --box-shadow: 0 8px 24px rgba(48, 142, 224, 0.40);
+}

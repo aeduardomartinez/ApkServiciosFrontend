@@ -1,0 +1,243 @@
+.main-container {
+  padding: 16px;
+  background: var(--ion-background-color);
+}
+
+/* ========== WELCOME BANNER ========== */
+.welcome-banner {
+  background: linear-gradient(135deg, #308ee0 0%, #1a6cc4 100%);
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 8px 24px rgba(48, 142, 224, 0.30);
+  animation: fadeSlideUp 0.4s ease both;
+
+  .welcome-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .welcome-label {
+    font-size: 20px;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.3px;
+  }
+
+  .welcome-sub {
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.80);
+  }
+}
+
+/* ========== ACTIONS CARD ========== */
+.actions-card {
+  margin: 0 0 32px;
+  border-radius: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  border: none;
+  background: #fff;
+
+  ion-card-header {
+    padding-bottom: 8px;
+    ion-card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--ion-text-color);
+    }
+  }
+
+  .actions-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    padding: 8px 4px;
+  }
+
+  .action-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    animation: fadeSlideUp 0.4s ease both;
+
+    @for $i from 1 through 3 {
+      &:nth-child(#{$i}) { animation-delay: #{0.1 + ($i - 1) * 0.08}s; }
+    }
+
+    &:active {
+      transform: scale(0.92);
+    }
+
+    span {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--ion-text-color);
+      text-align: center;
+      line-height: 1.2;
+    }
+  }
+}
+
+.action-icon.circle {
+  width: 52px;
+  height: 52px;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  ion-icon {
+    font-size: 24px;
+  }
+
+  &.azul { background: rgba(56, 128, 255, 0.12); color: #3880ff; }
+  &.verde { background: rgba(45, 211, 111, 0.12); color: #2dd36f; }
+  &.purpura { background: rgba(108, 92, 231, 0.12); color: #6c5ce7; }
+  &.naranja { background: rgba(255, 150, 0, 0.12); color: #ff9600; }
+}
+
+/* ========== SUMMARY SECTION ========== */
+.summary-section {
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+
+    h3 {
+      font-size: 18px;
+      font-weight: 800;
+      margin: 0;
+      color: var(--ion-text-color);
+    }
+
+    ion-button {
+      --padding-end: 0;
+      font-weight: 600;
+    }
+  }
+
+  .vencidos-list {
+    max-height: 480px; /* Ajustado para unos 4-5 elementos visibles */
+    overflow-y: auto;
+    padding: 2px 4px;
+    margin: 0 -4px;
+    
+    &::-webkit-scrollbar { display: none; }
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 0;
+  color: rgba(var(--ion-text-color-rgb), 0.3);
+
+  ion-icon { font-size: 48px; margin-bottom: 8px; }
+  p { font-size: 14px; font-weight: 600; }
+}
+
+.vencimiento-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fff;
+  border-radius: 18px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.03);
+  animation: fadeSlideUp 0.35s ease both;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:active {
+    transform: scale(0.98);
+    background: rgba(var(--ion-color-primary-rgb), 0.05);
+  }
+
+  .v-status {
+    width: 4px;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    border-radius: 4px 0 0 4px;
+
+    &.vencido { background: var(--ion-color-danger); }
+    &.vence_hoy { background: var(--ion-color-warning); }
+  }
+
+  .v-service-icon {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    border-radius: 8px;
+    background: rgba(0,0,0,0.04);
+    padding: 2px;
+    flex-shrink: 0;
+  }
+
+  .v-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+
+    .v-client {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--ion-text-color);
+    }
+    .v-service {
+      font-size: 12px;
+      color: rgba(var(--ion-text-color-rgb), 0.5);
+      font-weight: 600;
+    }
+  }
+
+  .v-date {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    ion-badge {
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    ion-button {
+      --padding-start: 0;
+      --padding-end: 0;
+      margin: 0;
+      width: 38px;
+      height: 38px;
+      color: var(--ion-color-primary);
+    }
+  }
+}
+
+/* Dark Mode support */
+@media (prefers-color-scheme: dark) {
+  .actions-card, .vencimiento-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .action-icon.circle {
+     &.azul { background: rgba(56, 128, 255, 0.2); }
+     &.verde { background: rgba(45, 211, 111, 0.2); }
+     &.purpura { background: rgba(108, 92, 231, 0.2); }
+     &.naranja { background: rgba(255, 150, 0, 0.2); }
+  }
+}

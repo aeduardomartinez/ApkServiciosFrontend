@@ -1,15 +1,26 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CrearServicioUseCase } from '../../servicios/application/crear-servicio.usecase';
-import {  IonicModule,ToastController, LoadingController } from '@ionic/angular';
+import { 
+  IonHeader, IonToolbar, IonTitle, IonContent, IonSearchbar, 
+  IonItem, IonInput, IonButton, IonIcon, IonButtons, IonBackButton,
+  ToastController, LoadingController 
+} from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import { arrowBackOutline, checkmarkCircleOutline, settingsOutline } from 'ionicons/icons';
 
 @Component({
   selector: 'app-crear-servicio',
   templateUrl: './crear-servicio.page.html',
   styleUrls: ['./crear-servicio.page.scss'],
   standalone: true,
- imports: [IonicModule, CommonModule, ReactiveFormsModule]
+  imports: [
+    CommonModule, ReactiveFormsModule,
+    IonHeader, IonToolbar, IonTitle, IonContent, IonSearchbar, 
+    IonItem, IonInput, IonButton, IonIcon, IonButtons, IonBackButton
+  ]
 })
 export class CrearServicioPage {
   readonly form = this.fb.nonNullable.group({
@@ -21,12 +32,16 @@ export class CrearServicioPage {
     valorPerfil: [0, [Validators.required, Validators.min(0)]]
   });
 
+  private readonly router = inject(Router);
+
   constructor(
     private readonly fb: FormBuilder,
     private readonly crearServicio: CrearServicioUseCase,
     private readonly toastCtrl: ToastController,
     private readonly loadingCtrl: LoadingController
-  ) {}
+  ) {
+    addIcons({ arrowBackOutline, checkmarkCircleOutline, settingsOutline });
+  }
 
   async onSubmit(): Promise<void> {
     if (this.form.invalid) {
@@ -54,6 +69,8 @@ export class CrearServicioPage {
           valorTotalCuenta: 0,
           valorPerfil: 0
         });
+        // Redirigir a la lista de servicios (tab2)
+        this.router.navigateByUrl('/tabs/tab2');
       },
       error: async (err: Error) => {
         await loading.dismiss();

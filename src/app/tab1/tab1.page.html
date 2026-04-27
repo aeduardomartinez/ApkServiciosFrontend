@@ -1,17 +1,63 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>
-      Tab 1
-    </ion-title>
+    <ion-title>Inicio</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
+<ion-content [fullscreen]="true" class="ion-padding">
   <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-title size="large">Tab 1</ion-title>
+      <ion-title size="large">Inicio</ion-title>
     </ion-toolbar>
   </ion-header>
 
-  <app-explore-container name="Tab 1 page"></app-explore-container>
+  <ion-card class="vencidos-card">
+    <ion-card-header>
+      <div class="header-row">
+        <ion-card-title>
+          <ion-icon name="warning-outline" color="danger"></ion-icon>
+          Top Perfiles Vencidos
+        </ion-card-title>
+        <ion-button size="small" fill="solid" color="primary" (click)="enviarRecordatorios()" [disabled]="sending || topVencidos.length === 0">
+          <ion-icon slot="start" name="send-outline"></ion-icon>
+          <ion-spinner *ngIf="sending" name="crescent" slot="start" class="btn-spinner"></ion-spinner>
+          Reenviar
+        </ion-button>
+      </div>
+    </ion-card-header>
+
+    <ion-card-content p-0>
+      <div *ngIf="loading" class="ion-text-center ion-padding">
+        <ion-spinner name="dots"></ion-spinner>
+        <p>Cargando perfiles...</p>
+      </div>
+
+      <div *ngIf="!loading && topVencidos.length === 0" class="empty-state">
+        <p>No hay perfiles vencidos 🎉</p>
+      </div>
+
+      <ion-list lines="full" *ngIf="!loading && topVencidos.length > 0">
+        <ion-item *ngFor="let item of topVencidos" class="vencido-item">
+          <ion-icon name="person-outline" slot="start" color="medium"></ion-icon>
+          <ion-label>
+            <h2>{{ item.perfil.nombreCliente || 'SIN CLIENTE' }}</h2>
+            <p>Servicio: <strong>{{ item.cuentaServicio }}</strong></p>
+            <p class="tel">{{ item.perfil.telefono }}</p>
+          </ion-label>
+          <div slot="end" class="end-info">
+            <ion-badge color="danger">{{ formatFechaDate(item.perfil.fechaFin) }}</ion-badge>
+            <span class="estado-text">{{ item.perfil.estado }}</span>
+            <ion-button size="small" fill="clear" color="primary" 
+                        (click)="enviarRecordatorioIndividual(item.perfil.id)" 
+                        [disabled]="sendingItems[item.perfil.id]">
+              <ion-icon slot="icon-only" name="send-outline"></ion-icon>
+              <ion-spinner *ngIf="sendingItems[item.perfil.id]" name="crescent" class="btn-spinner-small"></ion-spinner>
+            </ion-button>
+          </div>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+
 </ion-content>
+

@@ -1,5 +1,13 @@
 <!-- listar-cuentas.page.html -->
 
+<!-- Filter row -->
+<div class="filter-container" *ngIf="!loading && cuentas.length > 0">
+  <ion-item lines="none" class="filter-item">
+    <ion-label>Solo con cupos libres</ion-label>
+    <ion-toggle justify="end" [checked]="soloDisponibles" (ionChange)="toggleSoloDisponibles($event)"></ion-toggle>
+  </ion-item>
+</div>
+
 <!-- Search -->
 <ion-searchbar *ngIf="!hideSearchbar" class="app-search" placeholder="Buscar por servicio, correo o perfil..."
   (ionInput)="onSearch($event)">
@@ -24,40 +32,50 @@
 
   <div *ngFor="let c of filtered; trackBy: trackByCuentaId" class="account-card">
 
-    <!-- Header -->
-    <div class="account-header">
-      <div class="logo">
-        <ion-icon name="tv-outline"></ion-icon>
-      </div>
-
-      <div class="header-main">
-        <div class="title-row">
-          <h2 class="service-name">{{ c.servicioNombre }}</h2>
-          <span class="badge badge--neutral">Vence: {{ formatFecha(c.fechaFin) }}</span>
-        </div>
-
-        <div class="meta-row">
-          <span class="correo">{{ c.correo }}</span>
-
-          <span class="clave">
-            clave: {{ c.showClave ? '(ver en sistema)' : '••••••••' }}
-          </span>
-
-          <button class="icon-btn" type="button" (click)="toggleClave(c)">
-            <ion-icon [name]="c.showClave ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
-          </button>
-        </div>
-      </div>
+    <!-- Servicio: Ícono + Nombre -->
+    <div class="service-badge-row">
+      <img
+        [src]="getServiceIcon(c.servicioNombre)"
+        [alt]="c.servicioNombre"
+        class="service-icon-img"
+        (error)="onImgError($event)"
+      />
+      <span class="service-name-label">{{ c.servicioNombre }}</span>
     </div>
 
-    <!-- Perfiles -->
-    <div class="perfiles-title">
-      <span>Perfiles:</span>
-      <span class="count-pill">{{ c.perfiles?.length || 0 }}</span>
-      <span class="perfiles-hint">
-        <ion-icon name="pencil-outline"></ion-icon>
-        Toca una fila para editar o asignar
-      </span>
+    <!-- Header Simplificado -->
+    <div class="account-header-simple">
+      <div class="account-info-grid">
+        <div class="info-row">
+          <ion-icon name="mail-outline"></ion-icon>
+          <div class="data-wrapper">
+            <span class="data-text">{{ c.correo }}</span>
+            <ion-button fill="clear" size="small" (click)="copiarAlPortapapeles(c.correo)">
+              <ion-icon slot="icon-only" name="copy-outline"></ion-icon>
+            </ion-button>
+          </div>
+        </div>
+        
+        <div class="info-row">
+          <ion-icon name="lock-closed-outline"></ion-icon>
+          <div class="data-wrapper">
+            <span class="data-text data-text--mono">
+              {{ c.showClave ? (c.clave || 'Sin clave') : '••••••••' }}
+            </span>
+            <ion-button fill="clear" size="small" (click)="toggleClave(c)">
+              <ion-icon slot="icon-only" [name]="c.showClave ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+            </ion-button>
+            <ion-button fill="clear" size="small" (click)="copiarAlPortapapeles(c.clave)">
+              <ion-icon slot="icon-only" name="copy-outline"></ion-icon>
+            </ion-button>
+          </div>
+        </div>
+
+        <div class="info-row">
+          <ion-icon name="calendar-outline"></ion-icon>
+          <span class="badge badge--neutral">Vence: {{ formatFecha(c.fechaFin) }}</span>
+        </div>
+      </div>
     </div>
 
     <div class="table-scroll">
@@ -72,8 +90,11 @@
           </div>
 
           <div class="tbody">
-            <div *ngFor="let p of c.perfiles; trackBy: trackByPerfilId" class="row"
-              [class.row--libre]="!p.nombreCliente || p.nombreCliente.trim() === ''">
+            <!-- Iterar visiblePerfiles (filtrado según búsqueda activa).
+                 Si no hay búsqueda activa, visiblePerfiles === perfiles completos. -->
+            <div *ngFor="let p of c.visiblePerfiles; trackBy: trackByPerfilId" class="row"
+              [class.row--libre]="!p.nombreCliente || p.nombreCliente.trim() === ''"
+              [class.row--vencido]="p.estado?.toUpperCase() === 'VENCIDO'">
               <div class="cell name">
                 {{ formatPerfilNombre(p) }}
               </div>
@@ -103,6 +124,13 @@
                     (click)="confirmarLiberar($event, c.id, p.id, p.nombreCliente)">
                     <ion-icon slot="icon-only" name="trash-outline" style="font-size: 18px;"></ion-icon>
                   </ion-button>
+
+                  <ion-button *ngIf="p.estado?.toUpperCase() === 'VENCIDO' || p.estado?.toUpperCase() === 'VENCE_HOY'"
+                    fill="clear" color="warning"
+                    style="--padding-start: 4px; --padding-end: 4px; margin: 0; min-height: 24px; height: 32px;"
+                    (click)="enviarMensajeCobro($event, p.id, p.nombreCliente!)">
+                    <ion-icon slot="icon-only" name="send-outline" style="font-size: 18px;"></ion-icon>
+                  </ion-button>
                 </ng-container>
               </div>
             </div>
@@ -111,11 +139,11 @@
       </div>
     </div>
 
-    <!-- Expand/Collapse -->
-    <div *ngIf="(c.perfiles.length || 0) > 6" class="more-row">
+    <!-- Expand/Collapse: solo visible si hay más de 6 perfiles en el conjunto visible -->
+    <div *ngIf="(c.visiblePerfiles.length || 0) > 6" class="more-row">
       <button class="more-btn" type="button" (click)="toggleExpanded(c)">
         <ion-icon [name]="c.expanded ? 'chevron-up-outline' : 'chevron-down-outline'"></ion-icon>
-        {{ c.expanded ? 'Ver menos' : '... y ' + ((c.perfiles.length || 0) - 6) + ' perfiles más' }}
+        {{ c.expanded ? 'Ver menos' : '... y ' + ((c.visiblePerfiles.length || 0) - 6) + ' perfiles más' }}
       </button>
     </div>
 

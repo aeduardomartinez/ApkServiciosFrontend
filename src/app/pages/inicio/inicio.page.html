@@ -1,0 +1,95 @@
+<ion-header [translucent]="true" class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>Inicio</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="main-container">
+
+    <!-- ========== WELCOME BANNER ========== -->
+    <div class="welcome-banner">
+      <div class="welcome-text">
+        <span class="welcome-label">¡Bienvenido! 👋</span>
+        <span class="welcome-sub">Gestiona tus servicios de streaming</span>
+      </div>
+    </div>
+    <!-- ========== QUICK ACTIONS CARD ========== -->
+    <ion-card class="actions-card">
+      <ion-card-header>
+        <ion-card-title>Accesos rápidos</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="actions-grid">
+
+          <div class="action-item" (click)="navegar('/crear-servicio')">
+            <div class="action-icon circle azul">
+              <ion-icon name="add-circle-outline"></ion-icon>
+            </div>
+            <span>Crear Servicio</span>
+          </div>
+
+          <div class="action-item" (click)="navegar('/tabs/tab3')">
+            <div class="action-icon circle purpura">
+              <ion-icon name="people-outline"></ion-icon>
+            </div>
+            <span>Clientes</span>
+          </div>
+
+          <div class="action-item" (click)="navegar('/tabs/tab2')">
+            <div class="action-icon circle naranja">
+              <ion-icon name="apps-outline"></ion-icon>
+            </div>
+            <span>Servicios</span>
+          </div>
+
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- ========== SUMMARY SECTION (Top Vencidos) ========== -->
+    <div class="summary-section">
+      <div class="section-header">
+        <h3>Perfiles vencidos </h3>
+      </div>
+
+      <div *ngIf="loading" class="ion-text-center ion-padding">
+        <ion-spinner name="crescent"></ion-spinner>
+      </div>
+
+      <div *ngIf="!loading && topVencidos.length === 0" class="empty-state">
+        <ion-icon name="rocket-outline"></ion-icon>
+        <p>¡Todo al día por ahora!</p>
+      </div>
+
+      <div *ngIf="!loading && topVencidos.length > 0" class="vencidos-list">
+        <div class="vencimiento-card" *ngFor="let item of topVencidos; let i = index"
+          [style.animation-delay]="i * 0.07 + 's'"
+          (click)="irACuenta(item)">
+          <div class="v-status" [ngClass]="item.perfil.estado?.toLowerCase()"></div>
+          <img
+            [src]="getServiceIcon(item.cuentaServicio)"
+            [alt]="item.cuentaServicio"
+            class="v-service-icon"
+            (error)="onImgError($event)"
+          />
+          <div class="v-info">
+            <span class="v-client">{{ item.perfil.nombreCliente }}</span>
+            <span class="v-service">{{ item.cuentaServicio }}</span>
+          </div>
+          <div class="v-date">
+            <ion-badge [color]="item.perfil.estado?.toUpperCase() === 'VENCIDO' ? 'danger' : 'warning'">
+              {{ formatFechaDate(item.perfil.fechaFin) }}
+            </ion-badge>
+
+            <ion-button fill="clear" size="small" (click)="$event.stopPropagation(); enviarRecordatorio(item.perfil.id)" [disabled]="sendingItems[item.perfil.id]">
+              <ion-icon slot="icon-only" name="send-outline" *ngIf="!sendingItems[item.perfil.id]"></ion-icon>
+              <ion-spinner name="crescent" size="small" *ngIf="sendingItems[item.perfil.id]"></ion-spinner>
+            </ion-button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</ion-content>

@@ -13,6 +13,87 @@
   font-weight: 600;
 }
 
+.filter-container {
+  padding: 0 4px;
+  margin: 12px 0;
+  
+  .filter-item {
+    --background: rgba(var(--ion-color-primary-rgb), 0.05);
+    --border-radius: 14px;
+    --padding-start: 16px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ion-color-primary);
+  }
+}
+
+.account-header-simple {
+  margin-bottom: 15px;
+}
+
+.account-info-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 4px;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  
+  ion-icon {
+    font-size: 19px;
+    color: var(--ion-color-primary);
+    min-width: 22px;
+  }
+}
+
+.password-wrapper,
+.data-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  ion-button {
+    --padding-start: 4px;
+    --padding-end: 4px;
+    --color: var(--ion-color-medium);
+    height: 28px;
+    margin: 0;
+    
+    &:active {
+      --color: var(--ion-color-primary);
+    }
+  }
+}
+
+.data-text {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a1a1a;
+  
+  &--mono {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 16px;
+    background: rgba(0,0,0,0.06);
+    padding: 3px 10px;
+    border-radius: 6px;
+    min-width: 80px;
+    display: inline-block;
+    color: #333;
+  }
+}
+
+.badge {
+  font-size: 13px;
+  font-weight: 800;
+  padding: 4px 0;
+  color: #555;
+  background: none; /* Quitamos fondo para que sea más limpio */
+}
+
 .accounts {
   display: grid;
   gap: 14px;
@@ -26,6 +107,33 @@
   box-shadow: var(--app-shadow-md);
   padding: 12px;
 }
+
+/* -------- Ícono del Servicio -------- */
+.service-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(var(--ion-color-primary-rgb), 0.10);
+}
+
+.service-icon-img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.04);
+  padding: 2px;
+}
+
+.service-name-label {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--ion-text-color, #1a1a1a);
+  letter-spacing: -0.3px;
+}
+
 
 .account-header {
   display: grid;
@@ -218,6 +326,12 @@
 .tbody .row:last-child {
   border-bottom: 0;
 }
+
+.row.row--vencido {
+  background-color: rgba(231, 76, 60, 0.08);
+  border-left: 4px solid var(--ion-color-danger);
+}
+
 
 .cell.name {
   font-weight: 800;

@@ -30,6 +30,7 @@ export interface CuentaListResponse {
   servicio: string;
   servicioNombre: string;
   correo: string;
+  clave: string;
   fechaInicio: string;
   fechaFin: string;
   perfiles: PerfilResponse[];

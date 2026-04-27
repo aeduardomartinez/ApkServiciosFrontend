@@ -1,0 +1,80 @@
+.vencidos-card {
+  margin: 16px 0;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+
+  .header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+
+    ion-card-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  }
+
+  .btn-spinner {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 32px 16px;
+  color: var(--ion-color-medium);
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.vencido-item {
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --padding-top: 8px;
+  --padding-bottom: 8px;
+
+  h2 {
+    font-weight: 700;
+    color: var(--ion-text-color);
+  }
+
+  p {
+    font-size: 0.9rem;
+    color: var(--ion-color-medium);
+  }
+
+  .tel {
+    color: var(--ion-color-primary);
+    font-weight: 600;
+    margin-top: 4px;
+    font-size: 0.85rem;
+  }
+
+  .end-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+
+    ion-badge {
+      font-size: 0.8rem;
+      padding: 4px 8px;
+      border-radius: 8px;
+    }
+
+    .estado-text {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--ion-color-danger);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  }
+}
